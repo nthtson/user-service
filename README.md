@@ -89,5 +89,5 @@ user_service/
 ├── README.md
 └── .github
     └── workflows
-        └── ci.yml              # Github Action (CI/CD)
+        └── ci.yml              # Github Actions config
 ```
