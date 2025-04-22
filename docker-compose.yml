@@ -1,0 +1,54 @@
+version: '3.9'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      MAILTRAP_API_KEY: ${MAILTRAP_API_KEY}
+      SENTRY_DSN: ${SENTRY_DSN}
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
+      BASE_URL: ${BASE_URL}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+    depends_on:
+      - rabbitmq
+      - db
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      MAILTRAP_API_KEY: ${MAILTRAP_API_KEY}
+      SENTRY_DSN: ${SENTRY_DSN}
+      NEW_RELIC_LICENSE_KEY: ${NEW_RELIC_LICENSE_KEY}
+      BASE_URL: ${BASE_URL}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+    depends_on:
+      - rabbitmq
+      - db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: user_db

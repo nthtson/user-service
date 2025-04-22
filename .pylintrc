@@ -1,0 +1,23 @@
+[MASTER]
+# Python code path
+init-hook='import sys; sys.path.append("app")'
+
+[MESSAGES CONTROL]
+# Disable some Pylint messages that are too opinionated or conflict with Black
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+    W0511,  # TODO comments
+    W0621,  # Redefining name from outer scope
+
+[FORMAT]
+max-line-length=88  # Match Black’s line length
+
+[REPORTS]
+output-format=colorized
+reports=no
+
+[TYPECHECK]
+ignored-modules=flask
