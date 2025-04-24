@@ -89,5 +89,6 @@ user_service/
 ├── README.md
 └── .github
     └── workflows
-        └── ci.yml              # Github Actions config
+        ├── ci.yml              # Github Actions: handles lint, test, type check
+        └── deploy.yml          # Github Actions: handles Docker build/push + EKS/Helm deploy
 ```

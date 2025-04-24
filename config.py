@@ -9,19 +9,21 @@ class BaseConfig:
 
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-    JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "")
+    JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
     JWT_EXPIRATION_DELTA = timedelta(days=180)
 
     DATABASE_URL = os.getenv("DATABASE_URL", "")
     TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "")
 
     MAILTRAP_API_TOKEN = os.getenv("MAILTRAP_API_TOKEN", "")
-    MAILTRAP_SENDER_EMAIL = os.getenv("MAILTRAP_SENDER_EMAIL", "")
-    MAILTRAP_SENDER_NAME = os.getenv("MAILTRAP_SENDER_EMAIL", "MAILTRAP_SENDER_NAME")
-    MAILTRAP_API_URL = os.getenv("MAILTRAP_API_URL", "")
+    MAILTRAP_SENDER_EMAIL = os.getenv("MAILTRAP_SENDER_EMAIL", "no-reply@example.com")
+    MAILTRAP_SENDER_NAME = os.getenv("MAILTRAP_SENDER_EMAIL", "Full Name")
+    MAILTRAP_API_URL = os.getenv(
+        "MAILTRAP_API_URL", "https://send.api.mailtrap.io/api/send"
+    )
 
     RABBITMQ_URL = os.getenv("RABBITMQ_URL", "")
-    EMAIL_QUEUE_NAME = os.getenv("EMAIL_QUEUE_NAME", "")
+    EMAIL_QUEUE_NAME = os.getenv("EMAIL_QUEUE_NAME", "email_queue")
 
     SENTRY_DSN = os.getenv("SENTRY_DSN", "")
 
