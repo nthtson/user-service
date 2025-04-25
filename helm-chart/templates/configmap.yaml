@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+data:
+  FLASK_ENV: {{ .values.env.FLASK_ENV | quote }}
+  BASE_URL: {{ .values.env.BASE_URL | quote }}
+  FRONTEND_BASE_URL: {{ .values.env.FRONTEND_BASE_URL | quote }}
+  EMAIL_QUEUE_NAME: {{ .values.env.EMAIL_QUEUE_NAME | quote }}

@@ -7,10 +7,10 @@ services:
     ports:
       - "5000:5000"
     environment:
-      FLASK_ENV: "development"
-      BASE_URL: "http://127.0.0.1:5000"
-      FRONTEND_BASE_URL: "http://127.0.0.1:5000"
-      EMAIL_QUEUE_NAME: "email_queue"
+      FLASK_ENV: ${{ variables.FLASK_ENV }}
+      BASE_URL: ${{ variables.BASE_URL }}
+      FRONTEND_BASE_URL: ${{ variables.FRONTEND_BASE_URL }}
+      EMAIL_QUEUE_NAME: ${{ variables.EMAIL_QUEUE_NAME }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}

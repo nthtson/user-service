@@ -87,8 +87,82 @@ user_service/
 ├── mypy.ini                    # Mypy config (type checking) → Enforces and checks type annotations
 ├── email_worker.py             # Background worker that listens to RabbitMQ and sends emails
 ├── README.md
+├── infra/                      # Terraform infrastructure modules (EKS, RDS, AWS MQ, ACM, Route53, IAM)
+├── herm-chart/                 # Helm chart with configurable values and Kubernetes manifests
 └── .github
     └── workflows
         ├── ci.yml              # Github Actions: handles lint, test, type check
         └── deploy.yml          # Github Actions: handles Docker build/push + EKS/Helm deploy
 ```
+---
+
+## User Service Deployment
+
+### Overview
+
+- 📦 Terraform infrastructure modules (EKS, RDS, AWS MQ, ACM, Route53, IAM)
+- 📁 Helm chart with configurable values and Kubernetes manifests
+- ⚙️ GitHub Actions pipeline for CI/CD
+
+## Infrastructure Plan: User Service (AWS Free Tier Optimized)
+
+### Overview
+This infrastructure plan sets up a scalable, cost-effective backend for the User microservice, using AWS services and Kubernetes (EKS), while optimizing for the AWS Free Tier.
+
+---
+
+### Core Infrastructure (Provisioned via Terraform)
+
+| Component         | Description                                                                 |
+|------------------|-----------------------------------------------------------------------------|
+| **VPC**          | Custom or default VPC to isolate networking resources                        |
+| **Subnets**      | 2 public subnets (for EKS + NAT), or reused from default VPC                |
+| **EKS Cluster**  | 1-node `t3.micro` (free tier), hosting Flask app & email worker             |
+| **RDS**          | PostgreSQL `db.t3.micro`, 20GB storage (free tier)                          |
+| **RabbitMQ**     | Local (Docker-based), not AWS MQ (to avoid cost)                            |
+| **NodePort SVC** | Exposes the app using port `30080`, no ALB used                            |
+| **Security Groups** | Minimal SGs: EKS -> RDS (port 5432)                                    |
+
+---
+
+### Deployables
+
+| Component         | Runtime        | Deployed As      | Scaling   |
+|------------------|----------------|------------------|-----------|
+| Flask API        | Python + Gunicorn | Helm Deployment | Manual (replica=1) |
+| Email Worker     | Python script  | Helm Deployment  | Manual (replica=1) |
+| PostgreSQL       | AWS RDS        | Provisioned      | Managed   |
+| RabbitMQ         | Docker service | Compose only     | Local     |
+
+---
+
+### Access & Routing
+
+- App URL: `http://<eks-node-ip>:30080`
+- DNS mapping to `api.example.site` is **manual** (via A record)
+- SSL: Optional (not deployed)
+
+---
+
+### Infrastructure Modules
+
+| Module        | Files                                               |
+|---------------|-----------------------------------------------------|
+| EKS           | `eks/eks-cluster.tf`, IAM roles, node group         |
+| RDS           | `rds/rds-postgres.tf`, security group for RDS       |
+| IAM           | `iam/roles.tf` for EKS & worker pods                |
+| Helm Chart    | `helm-chart/` for app + worker deployments          |
+| GitHub Actions| `.github/workflows/deploy.yml`                     |
+
+---
+
+### Optional Enhancements (Later)
+
+- Add NGINX Ingress + SSL
+- Use cert-manager + Let's Encrypt
+- External Secrets Operator
+- Autoscaling (HPA) for pods
+- Logging to CloudWatch or Loki
+- Monitoring via Prometheus + Grafana
+
+---

@@ -1,0 +1,20 @@
+# AWS Region
+aws_region = "us-east-1"
+
+# EKS Cluster Configuration
+cluster_name = "user-service-cluster"
+
+# VPC & Subnets
+vpc_id     = "vpc-xxxxxxxxxx"
+subnet_ids = [
+  "subnet-xxxxxxxxxxxa",
+  "subnet-xxxxxxxxxxxb"
+]
+
+# Security Group (for EKS & RDS)
+security_group_id = "sg-084xxxxxxxx"
+
+# RDS PostgreSQL Configuration
+db_name     = "user_db"
+db_user     = "dbadmin"
+db_password = "password"
