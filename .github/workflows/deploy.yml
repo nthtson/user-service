@@ -56,7 +56,7 @@ jobs:
 
       - name: Deploy to EKS with Helm
         run: |
-          helm upgrade --install user-service ./helm-chart \
+          helm upgrade --install user-service ./helm-chart --wait --timeout 300s \
             --set image.repository=$IMAGE_NAME \
             --set image.tag=$IMAGE_TAG \
             --set env.FLASK_ENV=${{ vars.FLASK_ENV }} \
@@ -72,8 +72,3 @@ jobs:
             --set secrets.NEW_RELIC_LICENSE_KEY="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
             --namespace default \
             --create-namespace
-
-      - name: Run Alembic Migrations
-        run: |
-          kubectl apply -f helm-chart/templates/migration-job.yaml
-          kubectl wait --for=condition=complete job/run-migrations --timeout=60s

@@ -18,3 +18,5 @@ security_group_id = "sg-084xxxxxxxx"
 db_name     = "user_db"
 db_user     = "dbadmin"
 db_password = "password"
+
+ec2_key_pair = "<your-ec2-key-pair>"
