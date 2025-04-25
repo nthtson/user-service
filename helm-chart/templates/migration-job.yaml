@@ -11,7 +11,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: alembic-migrator
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command: ["alembic", "upgrade", "head"]
           envFrom:
             - configMapRef:
