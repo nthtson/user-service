@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: user-service
 spec:
-  type: {{ .values.service.type }}
+  type: {{ .Values.service.type }}
   selector:
     app: user-service
   ports:
     - protocol: TCP
-      port: {{ .values.service.port }}
+      port: {{ .Values.service.port }}
       targetPort: 5000
-      nodePort: {{ .values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}

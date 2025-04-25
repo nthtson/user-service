@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: email-worker
-          image: {{ .values.image.repository }}:{{ .values.image.tag }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           command: ["python", "email_worker.py"]
           envFrom:
             - configMapRef:

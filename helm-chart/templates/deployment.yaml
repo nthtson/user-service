@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: user-service
 spec:
-  replicas: {{ .values.replicaCount }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: user-service
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: {{ .values.image.repository }}:{{ .values.image.tag }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           ports:
             - containerPort: 5000
           envFrom:
