@@ -67,8 +67,13 @@ jobs:
             --set secrets.JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
             --set secrets.DATABASE_URL="${{ secrets.DATABASE_URL }}" \
             --set secrets.RABBITMQ_URL="${{ secrets.RABBITMQ_URL }}" \
-            --set secrets.MAILTRAP_API_KEY="${{ secrets.MAILTRAP_API_KEY }}" \
+            --set secrets.MAILTRAP_API_TOKEN="${{ secrets.MAILTRAP_API_TOKEN }}" \
             --set secrets.SENTRY_DSN="${{ secrets.SENTRY_DSN }}" \
             --set secrets.NEW_RELIC_LICENSE_KEY="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
             --namespace default \
             --create-namespace
+
+      - name: Run Alembic Migrations
+        run: |
+          kubectl apply -f helm-chart/templates/migration-job.yaml
+          kubectl wait --for=condition=complete job/run-migrations --timeout=60s
