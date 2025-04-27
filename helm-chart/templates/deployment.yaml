@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: user-service
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount.api }}
   selector:
     matchLabels:
       app: user-service
@@ -16,7 +16,7 @@ spec:
         - name: user-service
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
-            - containerPort: 5000
+            - containerPort: {{ .Values.service.port }}
           envFrom:
             - configMapRef:
                 name: user-service-config

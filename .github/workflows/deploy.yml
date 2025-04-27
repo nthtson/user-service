@@ -1,4 +1,3 @@
-name: Docker Build & Deploy to EKS
 
 on:
   workflow_run:
@@ -34,46 +33,3 @@ jobs:
         run: |
           docker build -t $IMAGE_NAME:$IMAGE_TAG .
           docker push $IMAGE_NAME:$IMAGE_TAG
-
-  deploy:
-    name: Deploy to AWS EKS
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Update kubeconfig
-        run: aws eks update-kubeconfig --name user-service-cluster
-
-      - name: Deploy to EKS with Helm
-        run: |
-          helm upgrade --install user-service ./helm-chart --wait --timeout 300s \
-            --set image.repository=$IMAGE_NAME \
-            --set image.tag=$IMAGE_TAG \
-            --set env.FLASK_ENV=${{ vars.FLASK_ENV }} \
-            --set env.BASE_URL=${{ vars.BASE_URL }} \
-            --set env.FRONTEND_BASE_URL=${{ vars.FRONTEND_BASE_URL }} \
-            --set env.EMAIL_QUEUE_NAME=${{ vars.EMAIL_QUEUE_NAME }} \
-            --set secrets.SECRET_KEY="${{ secrets.SECRET_KEY }}" \
-            --set secrets.JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}" \
-            --set secrets.DATABASE_URL="${{ secrets.DATABASE_URL }}" \
-            --set secrets.RABBITMQ_URL="${{ secrets.RABBITMQ_URL }}" \
-            --set secrets.MAILTRAP_API_TOKEN="${{ secrets.MAILTRAP_API_TOKEN }}" \
-            --set secrets.SENTRY_DSN="${{ secrets.SENTRY_DSN }}" \
-            --set secrets.NEW_RELIC_LICENSE_KEY="${{ secrets.NEW_RELIC_LICENSE_KEY }}" \
-            --namespace default \
-            --create-namespace
-
-      - name: Run Alembic Migrations
-        run: |
-          kubectl apply -f helm-chart/templates/migration-job.yaml
-          kubectl wait --for=condition=complete job/run-migrations --timeout=60s

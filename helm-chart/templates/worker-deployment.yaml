@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: email-worker
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount.worker }}
   selector:
     matchLabels:
       app: email-worker
@@ -15,7 +15,7 @@ spec:
       containers:
         - name: email-worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          command: ["python", "email_worker.py"]
+          command: {{ toJson .Values.worker.command }}
           envFrom:
             - configMapRef:
                 name: user-service-config

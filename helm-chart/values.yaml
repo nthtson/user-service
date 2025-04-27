@@ -1,9 +1,19 @@
-replicaCount: 1
 image:
-  repository: nthtson/user-service
+  repository: your-dockerhub-username/user-service
   tag: latest
-  pullPolicy: IfNotPresent
+
+replicaCount:
+  api: 1
+  worker: 1
+
 service:
-  type: NodePort
-  port: 80
-  nodePort: 30080
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  hostname: api.<your-domain>.site
+  certificateArn: arn:aws:acm:us-east-1:xxxxxxxxxxxx:certificate/xxxxxxxxxxxx
+
+worker:
+  command: ["python", "email_worker.py"]

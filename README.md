@@ -87,11 +87,85 @@ user_service/
 ├── mypy.ini                    # Mypy config (type checking) → Enforces and checks type annotations
 ├── email_worker.py             # Background worker that listens to RabbitMQ and sends emails
 ├── README.md
-├── infra/                      # Terraform infrastructure modules (EKS, RDS, AWS MQ, ACM, Route53, IAM)
+├── infra/                      # Terraform infrastructure modules
 ├── herm-chart/                 # Helm chart with configurable values and Kubernetes manifests
 └── .github
     └── workflows
         ├── ci.yml              # Github Actions: handles lint, test, type check
-        └── deploy.yml          # Github Actions: handles Docker build/push + EKS/Helm deploy
+        └── deploy.yml          # Github Actions: handles Docker build/push
 ```
 ---
+
+## 🚀 Deployment (AWS EKS + RDS + ALB)
+
+This project deploys a **Flask User Service** microservice and **Email Worker** on **AWS EKS** using **Terraform** and **Helm**.  
+It connects to an external **RabbitMQ** (CloudAMQP) and a **PostgreSQL RDS** database.  
+The service is publicly accessible via **AWS ALB Ingress Controller** with **SSL** using your domain `https://api.<your-domain>.site`.
+
+### 🛠 Prerequisites
+
+- Terraform installed (`terraform -version`)
+- Helm installed (`helm version`)
+- kubectl installed and configured to your EKS cluster (`kubectl get nodes`)
+- AWS CLI configured with your credentials (`aws configure`)
+- Docker image pushed to DockerHub or ECR (`your-dockerhub-username/user-service:latest`)
+- Existing ACM SSL certificate in AWS (`arn:aws:acm:us-east-1:xxxxxxxxxxxx:certificate/xxxxxxxxxxxx`)
+- RabbitMQ URL available (CloudAMQP free plan)
+
+
+### ⚙️ Setup and Deploy
+
+**1. Deploy Infrastructure (VPC, EKS, RDS, ALB)**
+
+```bash
+cd infra
+terraform init
+terraform apply -auto-approve
+cd ..
+```
+Terraform will create:
+
+- VPC
+- EKS Cluster
+- EKS Node Group (EC2 t3.small instances)
+- AWS RDS PostgreSQL
+- AWS ALB Ingress Controller
+
+**2. Deploy Application (API + Worker)**
+```bash
+helm upgrade --install user-service ./helm-chart --namespace default
+```
+**3. Configure Domain (e.g. GoDaddy)**
+After Terraform finishes, find your ALB DNS name:
+```bash
+kubectl get ingress
+```
+Example output:
+```bash
+a1b2c3d4e5f6g7h8-1234567890.us-east-1.elb.amazonaws.com
+```
+Go to GoDaddy DNS Management, create a new A Record or CNAME:
+
+- Name: api
+- Value: ALB DNS Name
+- TTL: Default
+
+Wait ~5–10 minutes for DNS propagation. Your service will be available at:
+https://api.<your-domain>.site
+
+
+### 📋 Environment Variables (Secrets)
+The app expects certain ENV variables to be injected via Kubernetes Secrets:
+
+- DATABASE_URL (PostgreSQL connection string)
+- RABBITMQ_URL (RabbitMQ CloudAMQP URL)
+- JWT_SECRET_KEY (your JWT signing secret)
+- ...
+
+You must create these secrets manually or automate them later.
+
+### 📣 Notes
+- ALB terminates SSL at the load balancer level.
+- RDS PostgreSQL is publicly accessible. (Consider VPC-only access for production.)
+- Email Worker runs as a background service consuming RabbitMQ messages.
+- Terraform state is local (stored inside infra/.terraform/).
